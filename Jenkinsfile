@@ -8,13 +8,13 @@ pipeline {
     stages {
         stage('Install dependencies') {
             steps {
-                sh 'python -m venv venv && source venv/bin/activate && pip install -r requirements.txt'
+                bat 'python -m venv venv && source venv/bin/activate && pip install -r requirements.txt'
             }
         }
 
         stage('Run tests') {
             steps {
-                sh 'source venv/bin/activate && behave -f allure_behave.formatter:AllureFormatter -o $ALLURE_RESULTS'
+                bat 'source venv/bin/activate && behave -f allure_behave.formatter:AllureFormatter -o $ALLURE_RESULTS'
             }
         }
 
