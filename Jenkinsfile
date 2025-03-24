@@ -2,33 +2,38 @@ pipeline {
     agent any
 
     environment {
-        ALLURE_RESULTS = 'reports/'
+        ALLURE_RESULTS = 'C:\\Users\\annpo\\PycharmProjects\\Behave\\reports'
+        PROJECT_PATH = 'C:\\Users\\annpo\\PycharmProjects\\Behave'
     }
 
     stages {
-        stage('Install dependencies') {
+        stage('Setup Environment') {
             steps {
-                bat 'python -m venv venv && source venv/bin/activate && pip install -r requirements.txt'
+                bat '''
+    call C:\\Users\\annpo\\PycharmProjects\\Behave\\venv\\Scripts\\activate.bat
+    python -m pip install --upgrade pip behave allure-behave
+'''
+
             }
         }
 
         stage('Run tests') {
             steps {
-                bat 'source venv/bin/activate && behave -f allure_behave.formatter:AllureFormatter -o $ALLURE_RESULTS'
-            }
-        }
-
-        stage('Generate Allure Report') {
-            steps {
-                allure includeProperties: false, jdk: '', results: [[path: "reports/"]]
+                bat '''
+                    call %PROJECT_PATH%\\venv\\Scripts\\activate.bat
+                    set PYTHONPATH=%PROJECT_PATH%
+                    python -m behave %PROJECT_PATH%\\features -f allure_behave.formatter:AllureFormatter -o reports/
+                '''
             }
         }
     }
 
-    post {
-        always {
-            archiveArtifacts artifacts: 'reports/**/*', fingerprint: true
-            junit 'reports/*.json'
-        }
-    }
+     post {
+                always {
+                    allure includeProperties:
+                     false,
+                     jdk: '',
+                     results: [[path: 'reports/']]
+                }
+            }
 }
